@@ -1,20 +1,25 @@
 #!/usr/bin/env ruby
+
 class Condition
 	attr_accessor :name, :precop, :trailop
 end
 
 class Testcase
 	attr_accessor :seq, :res
+	def initialize(seq, res)
+		@seq = seq
+		@res = res
+	end
 end
 
 class Decision
 	attr_reader :conditions, :testcases
-	
+
 	def initialize
 		@conditions = []
 		@testcases = []
 	end
-	
+
 	def extract(raw)
 		elem = raw.split(//)
 		size = elem.length
@@ -28,25 +33,21 @@ class Decision
 			i += 2
 		end
 	end
-	
+
 	def derivation
 		testcase= []
 		@conditions.each_index do |i|
 			testcase[i] = "1"
-			len = @conditions.length 
+			len = @conditions.length
 			(i+1).upto(len-1) do |x|
 				testcase[x] = @conditions[x].precop == "&" ? "1" : "0"
 			end
 			0.upto(len - (len - i) - 1) do |x|
 				testcase[x] = @conditions[x].trailop == "&" ? "1" : "0"
 			end
-			@testcases[i] = Testcase.new
-			@testcases[i].seq = testcase.join
-			@testcases[i].res = "True"
+			@testcases[i] = Testcase.new(testcase.join, "True")
 			testcase[i] = "0"
-			@testcases[i + len] = Testcase.new
-			@testcases[i + len].seq = testcase.join
-			@testcases[i + len].res = "False"
+			@testcases[i + len] = Testcase.new(testcase.join, "False")
 			testcase.clear
 		end
 	end
@@ -63,7 +64,7 @@ class Decision
 		@testcases.clear
 		@testcases = temp
 	end
-	
+
 	def print_solution
 		printf"      "
 		@conditions.each do |condition|
