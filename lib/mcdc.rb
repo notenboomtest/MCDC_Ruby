@@ -1,5 +1,18 @@
 #!/usr/bin/env ruby
 
+#require 'optparse'
+
+#options = {}
+#option_parser = OptionParser.new do |opts|
+#	executable_name = File.basename($PROGRAM_NAME)
+#	opts.banner = "Tool for the determination of MCDC test cases"
+#	opts.on("-h", "--help") do
+#		options[:help] = true
+#	end
+#end
+#option_parser.parse!
+#puts options.inspect
+
 class Condition
 	attr_accessor :name, :precop, :trailop
 end
@@ -108,14 +121,28 @@ class Decision
 	end
 end
 
-file = ARGV.empty? ? "" : ARGV[0]
-print "Give a decision in the form A&B|C (ignore parenthesis): "
-decision = Decision.new
-decision.extract($stdin.gets)
-decision.derivation
-decision.reduce
-if file == ""
-		decision.print_solution
-else
-		decision.print_file_solution(file)
+tries = 0
+begin
+  tries += 1
+  file = ARGV.empty? ? "" : ARGV[0]
+  print "Give a decision in the form A&B|C (ignore parenthesis): "
+  input = $stdin.gets
+  raise ArgumentError, 'Ill-formed decision' unless /^[A-Za-z]{1}((\||\&)[A-Za-z])*$/.match(input) 
+  decision = Decision.new
+  decision.extract(input)
+  decision.derivation
+  decision.reduce
+  if file == ""
+    decision.print_solution
+  else
+    decision.print_file_solution(file)
+  end
+rescue ArgumentError => error
+  puts 'The decision has to start with a letter and can be followed by one or more combinations of a | or & + letter' 
+  if tries < 3
+    puts 'Please try again'
+    retry
+  end
+  puts 'Giving up!'
 end
+
