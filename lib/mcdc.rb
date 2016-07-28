@@ -127,7 +127,9 @@ begin
   file = ARGV.empty? ? "" : ARGV[0]
   print "Give a decision in the form A&B|C (ignore parenthesis): "
   input = $stdin.gets
-  raise ArgumentError, 'Ill-formed decision' unless /^[A-Za-z]{1}((\||\&)[A-Za-z])*$/.match(input) 
+  var = input.chomp.split(/[\|\&]/)
+  raise ArgumentError, 'Ill-formed decision' unless /^[A-Za-z]{1}((\||\&)[A-Za-z])*$/.match(input)
+  raise ArgumentError, 'Duplicate letters' unless var.length == var.uniq.length 
   decision = Decision.new
   decision.extract(input)
   decision.derivation
@@ -138,7 +140,11 @@ begin
     decision.print_file_solution(file)
   end
 rescue ArgumentError => error
-  puts 'The decision has to start with a letter and can be followed by one or more combinations of a | or & + letter' 
+  if error.message == 'Ill-formed decision'
+    puts 'The decision has to start with a letter and can be followed by one or more combinations of a | or & + letter' 
+  else
+    puts 'The decision contains duplicate letters'
+  end
   if tries < 3
     puts 'Please try again'
     retry
