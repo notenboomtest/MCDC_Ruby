@@ -1,18 +1,5 @@
 #!/usr/bin/env ruby
 
-#require 'optparse'
-
-#options = {}
-#option_parser = OptionParser.new do |opts|
-#	executable_name = File.basename($PROGRAM_NAME)
-#	opts.banner = "Tool for the determination of MCDC test cases"
-#	opts.on("-h", "--help") do
-#		options[:help] = true
-#	end
-#end
-#option_parser.parse!
-#puts options.inspect
-
 class Condition
   attr_accessor :name, :precop, :trailop
 end
@@ -49,9 +36,9 @@ class Decision
 
   def derivation
     testcase= []
+    len = @conditions.length
     @conditions.each_index do |i|
       testcase[i] = "1"
-      len = @conditions.length
       (i+1).upto(len-1) do |x|
 	testcase[x] = @conditions[x].precop == "&" ? "1" : "0"
       end
@@ -79,7 +66,7 @@ class Decision
   end
 
   def print_solution
-    printf"      "
+    printf"        "
     @conditions.each do |condition|
       printf "#{condition.name} "
     end
@@ -89,7 +76,7 @@ class Decision
     @testcases.each do |testcase|
       solutions = testcase.seq.split(//)
       number += 1
-      printf "TC%s:  ", number
+      printf "TC%3d:  ", number
       solutions.each do |solution|
 	printf "#{solution} "
       end
@@ -100,7 +87,7 @@ class Decision
 
   def print_file_solution(file)
     f = File.new(file, "w")
-    f.printf"      "
+    f.printf"        "
     @conditions.each do |c|
       f.printf "%s ", c.name
     end
@@ -110,7 +97,7 @@ class Decision
     @testcases.each do |x|
       sol = x.seq.split(//)
       number += 1
-      f.printf "TC%s:  ", number
+      f.printf "TC%3d:  ", number
       sol.each do |s|
 	f.printf "%s ", s
       end
@@ -122,6 +109,7 @@ class Decision
 end
 
 tries = 0
+puts 
 begin
   tries += 1
   file = ARGV.empty? ? "" : ARGV[0]
@@ -134,10 +122,12 @@ begin
   decision.extract(input)
   decision.derivation
   decision.reduce
-  if file == ""
-    decision.print_solution
-  else
+  decision.print_solution
+  puts
+  if file != ""
     decision.print_file_solution(file)
+    puts "The file is saved as #{file}"
+    puts
   end
 rescue ArgumentError => error
   if error.message == 'Ill-formed decision'
