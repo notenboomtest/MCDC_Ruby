@@ -66,6 +66,7 @@ class Decision
   end
 
   def print_solution
+    puts
     printf"        "
     @conditions.each do |condition|
       printf "#{condition.name} "
@@ -83,6 +84,7 @@ class Decision
       printf "  #{testcase.res}"
       puts
     end
+    puts
   end
 
   def print_file_solution(file)
@@ -123,7 +125,6 @@ begin
   decision.derivation
   decision.reduce
   decision.print_solution
-  puts
   if file != ""
     decision.print_file_solution(file)
     puts "The file is saved as #{file}"
